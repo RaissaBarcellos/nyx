@@ -30,6 +30,14 @@ It evaluates multiple interpretability dimensions and outputs structured results
 
 The **final interpretability score** is a weighted average of all metrics, ranging from **0 (low interpretability)** to **1 (high interpretability)**.
 
+## Configure
+
+```
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
 ## Run
 
 python nyx-ranking.py --input file.csv --out results
