@@ -72,7 +72,16 @@ def informatividade(df):
     num_cols = df.select_dtypes(include=[np.number]).columns
     for col in num_cols:
         p_data = df[col].value_counts(normalize=True, dropna=True)
-        score_total += -np.sum(p_data*np.log2(p_data))
+        
+        if len(p_data) > 1:
+            H = -np.sum(p_data * np.log2(p_data))
+            H_max = np.log2(len(p_data))
+            H_norm = H / H_max if H_max > 0 else 0
+        else:
+            H_norm = 0  # coluna constante
+        
+        score_total += H_norm
+    
     if len(num_cols) > 0:
         return score_total / len(num_cols)
     return 0.5
