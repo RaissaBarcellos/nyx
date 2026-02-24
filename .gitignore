@@ -123,5 +123,4 @@ Thumbs.db
 *.code-workspace
 
 # custom
-inputs/*.csv
 results
