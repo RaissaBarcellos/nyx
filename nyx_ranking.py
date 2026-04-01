@@ -55,17 +55,47 @@ def atualidade(df):
     return score
 
 def consistencia(df):
-    score = 1.0
+    total_cols = len(df.columns)
+    
+    if total_cols == 0:
+        return 0
+    
+    scores = []
+    
     for col in df.columns:
-        tipos = df[col].map(type).nunique()
-        if tipos > 1:
-            score -= 0.1
-    return max(0, score)
+        series = df[col].dropna()
+        
+        if len(series) == 0:
+            scores.append(0)
+            continue
+        
+        tipos = series.map(type).value_counts(normalize=True)
+        
+        # proporção do tipo dominante
+        scores.append(tipos.iloc[0])
+    
+    return sum(scores) / total_cols
 
-def precisao(df):
-    missing = df.isnull().sum().sum()
-    score = 1 - missing / (df.shape[0] * df.shape[1])
-    return max(0, score)
+def precision(df):
+    total_cols = len(df.columns)
+    consistent_cols = 0
+    
+    for col in df.columns:
+        series = df[col].dropna()
+        
+        if len(series) == 0:
+            continue
+        
+        inferred = pd.api.types.infer_dtype(series, skipna=True)
+        
+        # penaliza colunas com tipos mistos
+        if inferred != "mixed":
+            consistent_cols += 1
+    
+    if total_cols == 0:
+        return 0
+    
+    return consistent_cols / total_cols
 
 def informatividade(df):
     score_total = 0
@@ -185,7 +215,7 @@ def medir_organizacao_estrutura(df, limiar_nulos=0.5, limiar_constantes=0.95, li
 # -----------------------------
 def calcular_score_final(df):
     score_org = medir_organizacao_estrutura(df)
-    score_prec = precisao(df)
+    score_prec = precision(df)
     score_conc = concisao(df)
     score_cons = consistencia(df)
     score_cons_sem = consistencia_semantica(df)
